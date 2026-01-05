@@ -1,5 +1,7 @@
 package br.feedback.domain;
 
+import br.feedback.service.Urgencia;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -8,6 +10,7 @@ public class Feedback {
     private String descricao;
     private double nota;
     private Instant dataEnvio;
+    private Urgencia urgencia;
 
     public Feedback() {}
 
@@ -16,6 +19,7 @@ public class Feedback {
         this.descricao = descricao;
         this.nota = nota;
         this.dataEnvio = dataEnvio;
+        this.urgencia = Urgencia.calcular(nota);
     }
 
     // getters / setters
@@ -30,4 +34,12 @@ public class Feedback {
 
     public Instant getDataEnvio() { return dataEnvio; }
     public void setDataEnvio(Instant dataEnvio) { this.dataEnvio = dataEnvio; }
+
+    public Urgencia getUrgencia() {
+        return urgencia;
+    }
+
+    public void setUrgencia(Urgencia urgencia) {
+        this.urgencia = urgencia;
+    }
 }

@@ -5,11 +5,9 @@ import br.feedback.dto.FeedbackPayload;
 import br.feedback.entity.FeedbackEntity;
 import br.feedback.repository.FeedbackRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.smallrye.mutiny.Multi;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.eclipse.microprofile.reactive.messaging.Emitter;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -18,15 +16,13 @@ import java.util.UUID;
 public class FeedbackService {
 
     @Inject
-    @Channel("feedbacks-out")
-    private Emitter<String> emitter;
-
-    @Inject
     FeedbackRepository repository;
+    
+    @Inject
+    SqsService sqsService;
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    //@Transactional
     public Feedback avaliar(String descricao, Double nota) throws Exception {
         if (descricao == null || descricao.isBlank()) {
             throw new IllegalArgumentException("Descrição é obrigatória");
@@ -36,27 +32,27 @@ public class FeedbackService {
         }
 
         Feedback feedback = new Feedback(UUID.randomUUID(), descricao, nota, Instant.now());
-
-        Urgencia urgencia = calcularUrgencia(nota);
-
-        if (urgencia == Urgencia.URGENTE) {
-            FeedbackPayload payload = new FeedbackPayload(feedback.getDescricao(), feedback.getNota(), urgencia);
+        
+        if (feedback.getUrgencia() == Urgencia.ALTA) {
+            FeedbackPayload payload = new FeedbackPayload(feedback.getDescricao(), feedback.getNota(), feedback.getUrgencia());
             String json = mapper.writeValueAsString(payload);
-            emitter.send(json);
+            sqsService.sendMessage(json);
         }
+        
         salvar(feedback);
         return feedback;
     }
 
-    private Urgencia calcularUrgencia(Double nota) {
-        if (nota >= 8.0) return Urgencia.NAO_URGENTE;
-        if (nota >= 5.0) return Urgencia.MEDIO;
-        return Urgencia.URGENTE;
-    }
-
-    @Transactional
-    public void salvar(Feedback feedback){
+    public void salvar(Feedback feedback) {
         FeedbackEntity entity = FeedbackEntity.fromDomain(feedback);
         repository.persist(entity);
+    }
+    
+    public Multi<FeedbackEntity> listarTodos() {
+        return repository.listAll();
+    }
+    
+    public void limparDados() {
+        repository.deleteAll();
     }
 }

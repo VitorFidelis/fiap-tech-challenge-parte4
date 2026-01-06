@@ -10,6 +10,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.jboss.logging.Logger;
 
 @Path("/feedbacks")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -19,8 +20,12 @@ public class FeedbackController {
     @Inject
     private FeedbackService feedbackService;
 
+    private static final org.jboss.logging.Logger LOGGER = org.jboss.logging.Logger.getLogger("AppLifeCycleBean");
+
     @POST
     public Response criar(FeedbackRequest request){
+
+        LOGGER.log(Logger.Level.INFO, "Criando avaliacao");
         try {
             Feedback feedback = feedbackService.avaliar(request.descricao(), request.nota());
             return Response.status(Response.Status.CREATED).entity(feedback).build();

@@ -3,7 +3,6 @@ package br.feedback.service;
 import br.feedback.domain.Feedback;
 import br.feedback.dto.FeedbackPayload;
 import br.feedback.entity.FeedbackEntity;
-import br.feedback.repository.FeedbackRepository;
 import br.feedback.repository.FeedbackRepositoryImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;

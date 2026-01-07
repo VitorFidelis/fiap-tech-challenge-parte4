@@ -21,7 +21,8 @@ public class FeedbackService {
     @Inject
     SqsService sqsService;
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    @Inject
+    ObjectMapper mapper;
 
     private static final org.jboss.logging.Logger LOGGER = org.jboss.logging.Logger.getLogger("AppLifeCycleBean");
 
@@ -38,7 +39,7 @@ public class FeedbackService {
 
         salvar(feedback);
         if (feedback.getUrgencia() == Urgencia.ALTA) {
-            FeedbackPayload payload = new FeedbackPayload(feedback.getDescricao(), feedback.getNota(), feedback.getUrgencia());
+            FeedbackPayload payload = new FeedbackPayload(feedback.getDescricao(), feedback.getNota(), feedback.getUrgencia(), feedback.getDataEnvio());
             String json = mapper.writeValueAsString(payload);
             LOGGER.log(Logger.Level.WARN, "Avaliacao baixa, alta urgencia\n Enviando payload: " + json);
             sqsService.sendMessage(json);

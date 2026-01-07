@@ -125,7 +125,7 @@ src/
 
 ## 📄 Licença
 
-Este projeto é parte de um desafio educacional da FIAP. Uso livre para fins acadêmicos.
+Este projeto é parte de um desafio educacional da FIAP. Uso livre para fins acadêmicos. Ver MIT License para demais finalidades.
 
 ## ✨ Agradecimentos
 
